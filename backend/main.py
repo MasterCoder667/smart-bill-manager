@@ -13,36 +13,16 @@ from datetime import timedelta
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Bill Manager API", version="0.1.0")
+
+# OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# Test endpoint - FIXED: changed dead_root to read_root
+# Test endpoint
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Smart Bill Manager API!"}
 
-# CREATE a new subscription - FIXED: changed schemas.Subscription to schemas.SubscriptionCreate
-@app.post("/subscriptions/", response_model=schemas.Subscription)
-def create_subscription(
-    subscription: schemas.SubscriptionCreate,  # FIXED THIS LINE
-    db: Session = Depends(get_db)
-):
-    # Create a new subscription model instance
-    db_subscription = models.Subscription(**subscription.dict())
-    
-    # Add to database
-    db.add(db_subscription)
-    db.commit()
-    db.refresh(db_subscription)  # Refresh to get the ID
-    
-    return db_subscription
-
-# READ all subscriptions
-@app.get("/subscriptions/", response_model=List[schemas.Subscription])
-def read_subscriptions(db: Session = Depends(get_db)):
-    subscriptions = db.query(models.Subscription).all()
-    return subscriptions
-
-
+# USER REGISTRATION
 @app.post("/register/", response_model=schemas.UserResponse)
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
@@ -94,3 +74,25 @@ def login_user(
         "token_type": "bearer",
         "user_id": db_user.id
     }
+
+# CREATE a new subscription
+@app.post("/subscriptions/", response_model=schemas.Subscription)
+def create_subscription(
+    subscription: schemas.SubscriptionCreate,
+    db: Session = Depends(get_db)
+):
+    # Create a new subscription model instance
+    db_subscription = models.Subscription(**subscription.dict())
+    
+    # Add to database
+    db.add(db_subscription)
+    db.commit()
+    db.refresh(db_subscription)  # Refresh to get the ID
+    
+    return db_subscription
+
+# READ all subscriptions
+@app.get("/subscriptions/", response_model=List[schemas.Subscription])
+def read_subscriptions(db: Session = Depends(get_db)):
+    subscriptions = db.query(models.Subscription).all()
+    return subscriptions
