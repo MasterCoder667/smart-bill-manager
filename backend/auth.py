@@ -1,19 +1,31 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import hashlib
+import secrets
 
 SECRET_KEY = "your-secret-key-change-this-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# Use a different hashing scheme that works with Python 3.13
-pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    try:
+        # Split the hash and salt
+        hashed, salt = hashed_password.split(":")
+        # Hash the plain password with the same salt
+        test_hash = hashlib.sha256((plain_password + salt).encode()).hexdigest()
+        # Compare
+        return test_hash == hashed
+    except:
+        return False
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
+def get_password_hash(password: str) -> str:
+    """Hash a password with a random salt"""
+    salt = secrets.token_hex(16)  # Generate random salt
+    # Hash the password + salt
+    hashed = hashlib.sha256((password + salt).encode()).hexdigest()
+    # Return "hash:salt" format
+    return f"{hashed}:{salt}"
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
