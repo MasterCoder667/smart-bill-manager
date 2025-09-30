@@ -1,8 +1,14 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
+___pycache___/
 *.py[cod]
 *$py.class
 *.so
+
+# C extensions
+*.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -54,6 +60,13 @@ ENV/
 env.bak/
 venv.bak/
 
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
 # IDE
 .vscode/
 .idea/
@@ -81,7 +94,3 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-
-# Project specific
-/backend/__pycache__/
-/backend/*.db
