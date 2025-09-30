@@ -19,7 +19,7 @@ class Subscription(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
     price = Column(Float, nullable=False)
-    currency = Column(String, default="USD")
+    currency = Column(String, default="GBP")
     due_date = Column(Date, nullable=False)
     category = Column(String, index=True)
     recurring_schedule = Column(String)
