@@ -126,17 +126,46 @@ def read_subscriptions(
     ).all()
     return subscriptions
 
-@app.get("/subscriptions/{subscription_id}", response_model=schemas.Subscription)
+# UPDATE a subscription (PROTECTED)
+@app.put("/subscriptions/{subscription_id}", response_model=schemas.Subscription)
 def update_subscription(
-    subscription_id : int,
-    subscription_update : schemas.SubscriptionCreate,
-    current_user : models.User = Depends(get_current_user),
-    db : Session = Depends(get_db)
+    subscription_id: int,
+    subscription_update: schemas.SubscriptionCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
+    # Find the subscription
     db_subscription = db.query(models.Subscription).filter(
         models.Subscription.id == subscription_id,
+        models.Subscription.owner_id == current_user.id  # User can only update their own
+    ).first()
+    
+    if not db_subscription:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Subscription not found"
+        )
+    
+    # Update the subscription
+    for field, value in subscription_update.dict().items():
+        setattr(db_subscription, field, value)
+    
+    db.commit()
+    db.refresh(db_subscription)
+    
+    return db_subscription
+
+# DELETE a subscription (PROTECTED)
+@app.delete("/subscriptions/{subscription_id}")
+def delete_subscription(
+    subscription_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Find the subscription
+    db_subscription = db.query(models.Subscription).filter(
         models.Subscription.id == subscription_id,
-        models.Subscription.owner_id == current_user.id
+        models.Subscription.owner_id == current_user.id  # User can only delete their own
     ).first()
     
     if not db_subscription:
