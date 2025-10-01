@@ -31,17 +31,35 @@ function SignUp() {
     }
 
     try {
-      console.log('Sending registration data:', formData); // Debug log
-      const response = await authAPI.register(formData);
-      console.log('Registration response:', response); // Debug log
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('user_id', response.data.user_id);
+      console.log('Sending registration data:', formData);
+      
+      // Your backend only expects email and password (no name field)
+      const registrationData = {
+        email: formData.email,
+        password: formData.password
+      };
+      
+      console.log('Sending to backend:', registrationData);
+      const response = await authAPI.register(registrationData);
+      console.log('Registration response:', response);
+      
+      // For now, create mock token since your backend returns UserResponse without tokens
+      // In a real scenario, your backend should return tokens on registration
+      const mockToken = 'mock-jwt-token-' + Date.now();
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user_id', response.data.id);
+      
       // Redirect to dashboard
       window.location.href = '/dashboard';
     } catch (error) {
-      console.error('Registration error:', error); // Debug log
-      console.error('Error response:', error.response); // Debug log
-      setError(error.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('Full error details:', error);
+      console.error('Error response:', error.response);
+      
+      if (error.response?.data?.detail === "Email already registered") {
+        setError('This email is already registered. Please use a different email.');
+      } else {
+        setError(error.response?.data?.detail || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -60,19 +78,19 @@ function SignUp() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name">Full Name (Optional)</label>
             <input
               type="text"
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              required
+              placeholder="Enter your full name"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email *</label>
             <input
               type="email"
               id="email"
@@ -80,11 +98,12 @@ function SignUp() {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="Enter your email"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Password *</label>
             <input
               type="password"
               id="password"
@@ -92,11 +111,12 @@ function SignUp() {
               value={formData.password}
               onChange={handleChange}
               required
+              placeholder="Create a password"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">Confirm Password *</label>
             <input
               type="password"
               id="confirmPassword"
@@ -104,6 +124,7 @@ function SignUp() {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
+              placeholder="Confirm your password"
             />
           </div>
 
