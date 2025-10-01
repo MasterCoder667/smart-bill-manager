@@ -125,3 +125,28 @@ def read_subscriptions(
         models.Subscription.owner_id == current_user.id
     ).all()
     return subscriptions
+
+@app.get("/subscriptions/{subscription_id}", response_model=schemas.Subscription)
+def update_subscription(
+    subscription_id : int,
+    subscription_update : schemas.SubscriptionCreate,
+    current_user : models.User = Depends(get_current_user),
+    db : Session = Depends(get_db)
+):
+    db_subscription = db.query(models.Subscription).filter(
+        models.Subscription.id == subscription_id,
+        models.Subscription.id == subscription_id,
+        models.Subscription.owner_id == current_user.id
+    ).first()
+    
+    if not db_subscription:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Subscription not found"
+        )
+    
+    # Delete the subscription
+    db.delete(db_subscription)
+    db.commit()
+    
+    return {"message": "Subscription deleted successfully"}
