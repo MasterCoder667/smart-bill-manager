@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import './styles/App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
 import Login from './pages/Login';
+import SignUp from './pages/SignUp';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentView, setCurrentView] = useState('login');
 
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
-      setCurrentView('dashboard');
     }
   }, []);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    setCurrentView('dashboard');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     setIsAuthenticated(false);
-    setCurrentView('login');
   };
 
-  if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
-  }
-
-  return (
+  // Main App Layout for authenticated users
+  const AppLayout = ({ children }) => (
     <div className="App">
       <header className="header">
         <div className="container">
@@ -56,14 +52,56 @@ function App() {
         </div>
       </nav>
       
-      <div className="container">
-        <div className="card">
-          <h2>Your Subscriptions</h2>
-          <p>We'll display your subscriptions here soon!</p>
-          <p>You're logged in as user ID: {localStorage.getItem('user_id')}</p>
-        </div>
-      </div>
+      {children}
     </div>
+  );
+
+  return (
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route 
+          path="/login" 
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+          } 
+        />
+        <Route 
+          path="/signup" 
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignUp />
+          } 
+        />
+        
+        {/* Protected routes */}
+        <Route 
+          path="/dashboard" 
+          element={
+            isAuthenticated ? (
+              <AppLayout>
+                <div className="container">
+                  <div className="card">
+                    <h2>Your Subscriptions</h2>
+                    <p>We'll display your subscriptions here soon!</p>
+                    <p>You're logged in as user ID: {localStorage.getItem('user_id')}</p>
+                  </div>
+                </div>
+              </AppLayout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        
+        {/* Default route */}
+        <Route 
+          path="/" 
+          element={
+            <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+          } 
+        />
+      </Routes>
+    </Router>
   );
 }
 
