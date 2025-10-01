@@ -31,13 +31,17 @@ function SignUp() {
     }
 
     try {
+      console.log('Sending registration data:', formData); // Debug log
       const response = await authAPI.register(formData);
+      console.log('Registration response:', response); // Debug log
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user_id', response.data.user_id);
-      // Redirect to dashboard or show success message
+      // Redirect to dashboard
       window.location.href = '/dashboard';
     } catch (error) {
-      setError('Registration failed. Please try again.');
+      console.error('Registration error:', error); // Debug log
+      console.error('Error response:', error.response); // Debug log
+      setError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

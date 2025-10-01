@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
 
 export const authAPI = {
   login: (email, password) => api.post('/login', { username: email, password }),
-  register: (userData) => api.post('/register/', userData),
+  register: (userData) => api.post('/register', userData), // Remove the trailing slash
 };
 
 export const subscriptionsAPI = {
