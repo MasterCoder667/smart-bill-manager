@@ -34,11 +34,11 @@ function Dashboard() {
     return subscriptions.reduce((total, sub) => {
       // Convert billing cycles to monthly equivalent
       let monthlyPrice = sub.price;
-      if (sub.billing_cycle === 'yearly') {
+      if (sub.recurring_schedule === 'yearly') {
         monthlyPrice = sub.price / 12;
-      } else if (sub.billing_cycle === 'quarterly') {
+      } else if (sub.recurring_schedule === 'quarterly') {
         monthlyPrice = sub.price / 3;
-      } else if (sub.billing_cycle === 'weekly') {
+      } else if (sub.recurring_schedule === 'weekly') {
         monthlyPrice = sub.price * 4;
       }
       return total + monthlyPrice;
@@ -95,15 +95,15 @@ function Dashboard() {
                 <div className="subscription-info">
                   <h3>{subscription.name}</h3>
                   <div className="subscription-meta">
-                    <span>${subscription.price} • </span>
-                    <span>{subscription.billing_cycle} • </span>
+                    <span>${subscription.price} {subscription.currency} • </span>
+                    <span>{subscription.recurring_schedule} • </span>
                     <span>{subscription.category}</span>
-                    {subscription.payment_date && (
-                      <span> • Next: {new Date(subscription.payment_date).toLocaleDateString()}</span>
+                    {subscription.due_date && (
+                      <span> • Due: {new Date(subscription.due_date).toLocaleDateString()}</span>
                     )}
                   </div>
-                  {subscription.description && (
-                    <p>{subscription.description}</p>
+                  {subscription.notes && (
+                    <p>{subscription.notes}</p>
                   )}
                 </div>
                 <div className="subscription-price">

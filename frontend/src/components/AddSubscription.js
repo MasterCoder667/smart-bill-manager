@@ -5,10 +5,10 @@ function AddSubscription({ onSubscriptionAdded }) {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    billing_cycle: 'monthly',
+    due_date: '',  // ← Changed from payment_date
     category: 'entertainment',
-    payment_date: '',
-    description: ''
+    recurring_schedule: 'monthly',  // ← Changed from billing_cycle
+    notes: ''  // ← Changed from description
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,24 +27,45 @@ function AddSubscription({ onSubscriptionAdded }) {
     setError('');
 
     try {
-      // Convert price to number
+      const token = localStorage.getItem('token');
+      console.log('🔐 Current token:', token);
+
+      if (!token) {
+        setError('No authentication token found. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      // Validate required fields
+      if (!formData.name || !formData.price || !formData.due_date) {
+        setError('Subscription name, price, and due date are required');
+        setLoading(false);
+        return;
+      }
+
+      // Convert price to number and prepare data for backend
       const subscriptionData = {
-        ...formData,
-        price: parseFloat(formData.price)
+        name: formData.name,
+        price: parseFloat(formData.price),
+        due_date: formData.due_date,
+        category: formData.category,
+        recurring_schedule: formData.recurring_schedule,
+        notes: formData.notes || null
       };
 
-      console.log('Adding subscription:', subscriptionData);
+      console.log('📤 Adding subscription:', subscriptionData);
+      
       const response = await subscriptionsAPI.create(subscriptionData);
-      console.log('Subscription added:', response);
+      console.log('✅ Subscription added:', response);
       
       // Reset form
       setFormData({
         name: '',
         price: '',
-        billing_cycle: 'monthly',
+        due_date: '',
         category: 'entertainment',
-        payment_date: '',
-        description: ''
+        recurring_schedule: 'monthly',
+        notes: ''
       });
       
       setShowForm(false);
@@ -55,8 +76,15 @@ function AddSubscription({ onSubscriptionAdded }) {
       }
       
     } catch (error) {
-      console.error('Error adding subscription:', error);
-      setError(error.response?.data?.detail || 'Failed to add subscription. Please try again.');
+      console.error('❌ Error adding subscription:', error);
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (error.response?.data?.detail) {
+        setError(`Error: ${error.response.data.detail}`);
+      } else {
+        setError('Failed to add subscription. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -100,7 +128,7 @@ function AddSubscription({ onSubscriptionAdded }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="price">Monthly Price (£) *</label>
+          <label htmlFor="price">Price *</label>
           <input
             type="number"
             id="price"
@@ -115,17 +143,30 @@ function AddSubscription({ onSubscriptionAdded }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="billing_cycle">Billing Cycle</label>
+          <label htmlFor="due_date">Due Date *</label>
+          <input
+            type="date"
+            id="due_date"
+            name="due_date"
+            value={formData.due_date}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="recurring_schedule">Billing Schedule</label>
           <select
-            id="billing_cycle"
-            name="billing_cycle"
-            value={formData.billing_cycle}
+            id="recurring_schedule"
+            name="recurring_schedule"
+            value={formData.recurring_schedule}
             onChange={handleChange}
           >
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
             <option value="weekly">Weekly</option>
             <option value="quarterly">Quarterly</option>
+            <option value="one-time">One Time</option>
           </select>
         </div>
 
@@ -147,22 +188,11 @@ function AddSubscription({ onSubscriptionAdded }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="payment_date">Next Payment Date</label>
-          <input
-            type="date"
-            id="payment_date"
-            name="payment_date"
-            value={formData.payment_date}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="description">Description (Optional)</label>
+          <label htmlFor="notes">Notes (Optional)</label>
           <textarea
-            id="description"
-            name="description"
-            value={formData.description}
+            id="notes"
+            name="notes"
+            value={formData.notes}
             onChange={handleChange}
             rows="3"
             placeholder="Any notes about this subscription..."

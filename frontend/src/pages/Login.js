@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 
 function Login({ onLogin }) {
@@ -9,6 +9,7 @@ function Login({ onLogin }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -24,10 +25,19 @@ function Login({ onLogin }) {
 
     try {
       const response = await authAPI.login(formData.email, formData.password);
+      
+      // Save token and user ID
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user_id', response.data.user_id);
+      
+      console.log('✅ Login successful - Token saved:', response.data.access_token);
+      console.log('✅ User ID saved:', response.data.user_id);
+      
       onLogin();
+      navigate('/dashboard');
+      
     } catch (error) {
+      console.error('Login error:', error);
       setError('Invalid email or password');
     } finally {
       setLoading(false);
