@@ -414,3 +414,160 @@ body {
 .flex.justify-between button {
   flex: 1;
 }
+
+/* Upcoming Bills */
+.upcoming-bills {
+  display: grid;
+  gap: 1rem;
+}
+
+.upcoming-bill-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.bill-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: #2d3748;
+}
+
+.bill-info p {
+  margin: 0;
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.bill-amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* Category Breakdown */
+.category-breakdown {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.category-name {
+  font-weight: 600;
+  color: #2d3748;
+  text-transform: capitalize;
+}
+
+.category-amount {
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* Category Tags */
+.category-tag {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.category-entertainment {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.category-productivity {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.category-utilities {
+  background: #bee3f8;
+  color: #1a365d;
+}
+
+.category-health {
+  background: #faf089;
+  color: #744210;
+}
+
+.category-education {
+  background: #e9d8fd;
+  color: #44337a;
+}
+
+.category-other {
+  background: #e2e8f0;
+  color: #2d3748;
+}
+
+/* Subscription Actions */
+.subscription-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Filter */
+.filter-select {
+  padding: 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+}
+
+/* Subscription Notes */
+.subscription-notes {
+  font-style: italic;
+  color: #718096;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .subscription-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .subscription-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+  }
+  
+  .action-buttons {
+    gap: 0.25rem;
+  }
+  
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}

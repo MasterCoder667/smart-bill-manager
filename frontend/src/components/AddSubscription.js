@@ -181,6 +181,7 @@ function AddSubscription({ onSubscriptionAdded }) {
             <option value="entertainment">Entertainment</option>
             <option value="productivity">Productivity</option>
             <option value="utilities">Utilities</option>
+            <option value="shopping">Shopping</option>
             <option value="health">Health & Fitness</option>
             <option value="education">Education</option>
             <option value="other">Other</option>

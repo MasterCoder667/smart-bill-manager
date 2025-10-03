@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import AddSubscription from '../components/AddSubscription';
+import EditSubscription from '../components/EditSubscription';
 import { subscriptionsAPI } from '../services/api';
 
 function Dashboard() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editingSubscription, setEditingSubscription] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Fetch subscriptions when component loads
   useEffect(() => {
@@ -26,13 +29,38 @@ function Dashboard() {
   };
 
   const handleSubscriptionAdded = (newSubscription) => {
-    // Add new subscription to the list
     setSubscriptions(prev => [newSubscription, ...prev]);
+  };
+
+  const handleEditSubscription = (subscription) => {
+    setEditingSubscription(subscription);
+  };
+
+  const handleUpdateSubscription = (updatedSubscription) => {
+    setSubscriptions(prev => 
+      prev.map(sub => 
+        sub.id === updatedSubscription.id ? updatedSubscription : sub
+      )
+    );
+    setEditingSubscription(null);
+  };
+
+  const handleDeleteSubscription = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this subscription?')) {
+      return;
+    }
+
+    try {
+      await subscriptionsAPI.delete(id);
+      setSubscriptions(prev => prev.filter(sub => sub.id !== id));
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      setError('Failed to delete subscription');
+    }
   };
 
   const calculateTotalMonthly = () => {
     return subscriptions.reduce((total, sub) => {
-      // Convert billing cycles to monthly equivalent
       let monthlyPrice = sub.price;
       if (sub.recurring_schedule === 'yearly') {
         monthlyPrice = sub.price / 12;
@@ -45,9 +73,46 @@ function Dashboard() {
     }, 0);
   };
 
+  const getUpcomingBills = () => {
+    const today = new Date();
+    const next30Days = new Date();
+    next30Days.setDate(today.getDate() + 30);
+    
+    return subscriptions.filter(sub => {
+      const dueDate = new Date(sub.due_date);
+      return dueDate >= today && dueDate <= next30Days;
+    }).sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+  };
+
+  const getCategoryBreakdown = () => {
+    return subscriptions.reduce((acc, sub) => {
+      acc[sub.category] = (acc[sub.category] || 0) + sub.price;
+      return acc;
+    }, {});
+  };
+
+  const filteredSubscriptions = selectedCategory === 'all' 
+    ? subscriptions 
+    : subscriptions.filter(sub => sub.category === selectedCategory);
+
+  const categories = ['all', ...new Set(subscriptions.map(sub => sub.category))];
+
+  const upcomingBills = getUpcomingBills();
+  const categoryBreakdown = getCategoryBreakdown();
+
+  if (editingSubscription) {
+    return (
+      <EditSubscription
+        subscription={editingSubscription}
+        onUpdate={handleUpdateSubscription}
+        onCancel={() => setEditingSubscription(null)}
+      />
+    );
+  }
+
   return (
     <div className="container">
-      {/* Summary Card */}
+      {/* Summary Cards */}
       <div className="card mb-4">
         <h2>Subscription Summary</h2>
         <div className="flex justify-between">
@@ -59,15 +124,71 @@ function Dashboard() {
             <h3>Monthly Cost</h3>
             <p className="subscription-price">${calculateTotalMonthly().toFixed(2)}</p>
           </div>
+          <div>
+            <h3>Upcoming Bills</h3>
+            <p className="subscription-count">{upcomingBills.length}</p>
+          </div>
         </div>
       </div>
+
+      {/* Upcoming Bills Section */}
+      {upcomingBills.length > 0 && (
+        <div className="card mb-4">
+          <h2>📅 Upcoming Bills (Next 30 Days)</h2>
+          <div className="upcoming-bills">
+            {upcomingBills.map((bill) => (
+              <div key={bill.id} className="upcoming-bill-item">
+                <div className="bill-info">
+                  <h4>{bill.name}</h4>
+                  <p>Due: {new Date(bill.due_date).toLocaleDateString()}</p>
+                </div>
+                <div className="bill-amount">
+                  ${bill.price}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Category Breakdown */}
+      {Object.keys(categoryBreakdown).length > 0 && (
+        <div className="card mb-4">
+          <h2>📊 Spending by Category</h2>
+          <div className="category-breakdown">
+            {Object.entries(categoryBreakdown).map(([category, amount]) => (
+              <div key={category} className="category-item">
+                <span className="category-name">{category}</span>
+                <span className="category-amount">${amount.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Add Subscription Form */}
       <AddSubscription onSubscriptionAdded={handleSubscriptionAdded} />
 
       {/* Subscriptions List */}
       <div className="card">
-        <h2>Your Subscriptions</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2>Your Subscriptions</h2>
+          
+          {/* Category Filter */}
+          {categories.length > 1 && (
+            <select 
+              value={selectedCategory} 
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="filter-select"
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category === 'all' ? 'All Categories' : category}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
         
         {loading && (
           <div className="loading">
@@ -82,32 +203,50 @@ function Dashboard() {
           </div>
         )}
 
-        {!loading && subscriptions.length === 0 && (
+        {!loading && filteredSubscriptions.length === 0 && (
           <div className="text-center">
-            <p>No subscriptions yet. Add your first subscription above!</p>
+            <p>No subscriptions found. {selectedCategory !== 'all' ? 'Try changing the filter.' : 'Add your first subscription above!'}</p>
           </div>
         )}
 
-        {!loading && subscriptions.length > 0 && (
+        {!loading && filteredSubscriptions.length > 0 && (
           <div className="subscription-list">
-            {subscriptions.map((subscription) => (
+            {filteredSubscriptions.map((subscription) => (
               <div key={subscription.id} className="subscription-item">
                 <div className="subscription-info">
                   <h3>{subscription.name}</h3>
                   <div className="subscription-meta">
                     <span>${subscription.price} {subscription.currency} • </span>
                     <span>{subscription.recurring_schedule} • </span>
-                    <span>{subscription.category}</span>
+                    <span className={`category-tag category-${subscription.category}`}>
+                      {subscription.category}
+                    </span>
                     {subscription.due_date && (
                       <span> • Due: {new Date(subscription.due_date).toLocaleDateString()}</span>
                     )}
                   </div>
                   {subscription.notes && (
-                    <p>{subscription.notes}</p>
+                    <p className="subscription-notes">{subscription.notes}</p>
                   )}
                 </div>
-                <div className="subscription-price">
-                  ${subscription.price}
+                <div className="subscription-actions">
+                  <div className="subscription-price">
+                    ${subscription.price}
+                  </div>
+                  <div className="action-buttons">
+                    <button 
+                      onClick={() => handleEditSubscription(subscription)}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteSubscription(subscription.id)}
+                      className="btn btn-danger btn-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
