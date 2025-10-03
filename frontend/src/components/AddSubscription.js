@@ -5,20 +5,23 @@ function AddSubscription({ onSubscriptionAdded }) {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    due_date: '',  // ← Changed from payment_date
+    due_date: '',
     category: 'entertainment',
-    recurring_schedule: 'monthly',  // ← Changed from billing_cycle
-    notes: ''  // ← Changed from description
+    recurring_schedule: 'monthly',
+    notes: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    console.log(`📝 Input change - ${name}:`, value);
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -113,6 +116,10 @@ function AddSubscription({ onSubscriptionAdded }) {
         </div>
       )}
 
+      <div style={{ fontSize: '12px', color: '#666', marginBottom: '1rem', padding: '0.5rem', background: '#f5f5f5', borderRadius: '4px' }}>
+        <strong>Debug:</strong> name="{formData.name}" price="{formData.price}" date="{formData.due_date}"
+      </div>
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Subscription Name *</label>
@@ -128,7 +135,7 @@ function AddSubscription({ onSubscriptionAdded }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="price">Price *</label>
+          <label htmlFor="price">Price (GBP) *</label>
           <input
             type="number"
             id="price"

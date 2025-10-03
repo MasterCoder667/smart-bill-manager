@@ -44,7 +44,7 @@ function SubscriptionCharts({ subscriptions }) {
               <div className="chart-bar" style={{width: `${(item.value / Math.max(...categoryData.map(d => d.value))) * 100}%`}}></div>
               <div className="chart-info">
                 <span className="chart-label">{item.name}</span>
-                <span className="chart-value">${item.value}</span>
+                <span className="chart-value">£{item.value}</span>
               </div>
             </div>
           ))}
@@ -58,7 +58,7 @@ function SubscriptionCharts({ subscriptions }) {
           {monthlyData.map((item) => (
             <div key={item.category} className="monthly-item">
               <span className="monthly-category">{item.category}</span>
-              <span className="monthly-cost">${item.cost}/mo</span>
+              <span className="monthly-cost">£{item.cost}/mo</span>
             </div>
           ))}
         </div>

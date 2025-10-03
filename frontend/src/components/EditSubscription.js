@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { subscriptionsAPI } from '../services/api';
 
 function EditSubscription({ subscription, onUpdate, onCancel }) {
   const [formData, setFormData] = useState({
-    name: subscription.name,
-    price: subscription.price,
-    due_date: subscription.due_date,
-    category: subscription.category,
-    recurring_schedule: subscription.recurring_schedule,
-    notes: subscription.notes || ''
+    name: '',
+    price: '',
+    due_date: '',
+    category: 'entertainment',
+    recurring_schedule: 'monthly',
+    notes: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Update form when subscription changes
+  useEffect(() => {
+    if (subscription) {
+      console.log('🔧 Setting form data from subscription:', subscription);
+      setFormData({
+        name: subscription.name || '',
+        price: subscription.price || '',
+        due_date: subscription.due_date || '',
+        category: subscription.category || 'entertainment',
+        recurring_schedule: subscription.recurring_schedule || 'monthly',
+        notes: subscription.notes || ''
+      });
+    }
+  }, [subscription]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    console.log(`📝 Input change - ${name}:`, value);
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -31,6 +49,7 @@ function EditSubscription({ subscription, onUpdate, onCancel }) {
         price: parseFloat(formData.price)
       };
 
+      console.log('🔧 Submitting update:', subscriptionData);
       const response = await subscriptionsAPI.update(subscription.id, subscriptionData);
       onUpdate(response.data);
       
@@ -42,6 +61,20 @@ function EditSubscription({ subscription, onUpdate, onCancel }) {
     }
   };
 
+  // Show loading if no subscription data
+  if (!subscription) {
+    return (
+      <div className="container">
+        <div className="card">
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <p>Loading subscription data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="card">
@@ -52,6 +85,10 @@ function EditSubscription({ subscription, onUpdate, onCancel }) {
             {error}
           </div>
         )}
+
+        <div style={{ fontSize: '12px', color: '#666', marginBottom: '1rem', padding: '0.5rem', background: '#f5f5f5', borderRadius: '4px' }}>
+          <strong>Debug:</strong> name="{formData.name}" price="{formData.price}" date="{formData.due_date}"
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -67,7 +104,7 @@ function EditSubscription({ subscription, onUpdate, onCancel }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="price">Price *</label>
+            <label htmlFor="price">Price (GBP) *</label>
             <input
               type="number"
               id="price"

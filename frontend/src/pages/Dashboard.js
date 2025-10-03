@@ -151,7 +151,7 @@ function Dashboard() {
               </div>
               <div>
                 <h3>Monthly Cost</h3>
-                <p className="subscription-price">${calculateTotalMonthly().toFixed(2)}</p>
+                <p className="subscription-price">£{calculateTotalMonthly().toFixed(2)}</p>
               </div>
               <div>
                 <h3>Upcoming Bills</h3>
@@ -175,7 +175,7 @@ function Dashboard() {
                       <p>Due: {new Date(bill.due_date).toLocaleDateString()}</p>
                     </div>
                     <div className="bill-amount">
-                      ${bill.price}
+                      £{bill.price}
                     </div>
                   </div>
                 ))}
@@ -191,7 +191,7 @@ function Dashboard() {
                 {Object.entries(categoryBreakdown).map(([category, amount]) => (
                   <div key={category} className="category-item">
                     <span className="category-name">{category}</span>
-                    <span className="category-amount">${amount.toFixed(2)}</span>
+                    <span className="category-amount">£{amount.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -248,7 +248,7 @@ function Dashboard() {
                     <div className="subscription-info">
                       <h3>{subscription.name}</h3>
                       <div className="subscription-meta">
-                        <span>${subscription.price} {subscription.currency} • </span>
+                        <span>£{subscription.price} GBP • </span>
                         <span>{subscription.recurring_schedule} • </span>
                         <span className={`category-tag category-${subscription.category}`}>
                           {subscription.category}
@@ -263,7 +263,7 @@ function Dashboard() {
                     </div>
                     <div className="subscription-actions">
                       <div className="subscription-price">
-                        ${subscription.price}
+                        £{subscription.price}
                       </div>
                       <div className="action-buttons">
                         <button 
@@ -298,7 +298,7 @@ function Dashboard() {
               <div className="insight-item">
                 <h4>Most Expensive</h4>
                 <p>{mostExpensiveSubscription?.name || 'N/A'}</p>
-                <span>${mostExpensiveSubscription?.price || 0}</span>
+                <span>£{mostExpensiveSubscription?.price || 0}</span>
               </div>
               <div className="insight-item">
                 <h4>Category Count</h4>
@@ -306,11 +306,11 @@ function Dashboard() {
               </div>
               <div className="insight-item">
                 <h4>Average Monthly</h4>
-                <p>${(calculateTotalMonthly() / Math.max(subscriptions.length, 1)).toFixed(2)}</p>
+                <p>£{(calculateTotalMonthly() / Math.max(subscriptions.length, 1)).toFixed(2)}</p>
               </div>
               <div className="insight-item">
                 <h4>Total Yearly</h4>
-                <p>${(calculateTotalMonthly() * 12).toFixed(2)}</p>
+                <p>£{(calculateTotalMonthly() * 12).toFixed(2)}</p>
               </div>
             </div>
           </div>

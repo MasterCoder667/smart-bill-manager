@@ -50,7 +50,7 @@ function PaymentTracker({ subscriptions, onPaymentUpdate }) {
           <div key={bill.id} className={`payment-item ${paidSubscriptions[bill.id] ? 'paid' : 'unpaid'}`}>
             <div className="payment-info">
               <h4>{bill.name}</h4>
-              <p>Due: {new Date(bill.due_date).toLocaleDateString()} • ${bill.price}</p>
+              <p>Due: {new Date(bill.due_date).toLocaleDateString()} • £{bill.price}</p>
             </div>
             <div className="payment-actions">
               {paidSubscriptions[bill.id] ? (
