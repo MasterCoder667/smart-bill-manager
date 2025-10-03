@@ -73,9 +73,9 @@ function Settings() {
               value={settings.currency}
               onChange={(e) => handleSettingChange('currency', e.target.value)}
             >
-              <option value="GBP">USD (£)</option>
+              <option value="GBP">GBP (£)</option>
               <option value="EUR">EUR (€)</option>
-              <option value="USD">GBP ($)</option>
+              <option value="USD">USD ($)</option>
               <option value="CAD">CAD (C$)</option>
               <option value="JPY">JPY (¥)</option>
             </select>
