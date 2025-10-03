@@ -868,3 +868,109 @@ body {
 .setting-item.checkbox input {
   width: auto;
 }
+
+/* Error Boundary */
+.error-boundary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem;
+}
+
+.error-boundary details {
+  margin: 1rem 0;
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.error-boundary summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error-boundary pre {
+  margin-top: 0.5rem;
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+/* Loading Skeletons */
+.skeleton {
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-line {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+.skeleton-line.wide {
+  width: 80%;
+}
+
+.skeleton-line.medium {
+  width: 60%;
+}
+
+.skeleton-line.narrow {
+  width: 40%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .nav, .footer, .btn, .tabs {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    break-inside: avoid;
+  }
+  
+  .container {
+    max-width: none !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .card {
+    border: 2px solid #000;
+  }
+  
+  .btn {
+    border: 2px solid;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark light;
+  }
+}
