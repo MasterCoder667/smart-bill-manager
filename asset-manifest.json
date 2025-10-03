@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/smart-bill-manager/static/css/main.2566eea1.css",
+    "main.js": "/smart-bill-manager/static/js/main.496b5063.js",
+    "static/js/453.7b4a3bb4.chunk.js": "/smart-bill-manager/static/js/453.7b4a3bb4.chunk.js",
+    "index.html": "/smart-bill-manager/index.html",
+    "main.2566eea1.css.map": "/smart-bill-manager/static/css/main.2566eea1.css.map",
+    "main.496b5063.js.map": "/smart-bill-manager/static/js/main.496b5063.js.map",
+    "453.7b4a3bb4.chunk.js.map": "/smart-bill-manager/static/js/453.7b4a3bb4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2566eea1.css",
+    "static/js/main.496b5063.js"
+  ]
+}
