@@ -30,7 +30,7 @@ function BudgetTracker({ subscriptions }) {
       <h3>💰 Monthly Budget Tracker</h3>
       
       <div className="budget-input">
-        <label>Monthly Budget: $</label>
+        <label>Monthly Budget: £</label>
         <input
           type="number"
           value={monthlyBudget}
@@ -51,18 +51,18 @@ function BudgetTracker({ subscriptions }) {
           ></div>
         </div>
         <div className="progress-text">
-          <span>${totalMonthly.toFixed(2)} / ${monthlyBudget}</span>
+          <span>£{totalMonthly.toFixed(2)} / £{monthlyBudget}</span>
           <span>{budgetUsage.toFixed(1)}%</span>
         </div>
       </div>
 
       <div className="budget-stats">
-        <div className={`budget-stat ${budgetStatus.status}`}>
-          <strong>Remaining: ${Math.max(remainingBudget, 0).toFixed(2)}</strong>
+        <div className={`budget-stat £{budgetStatus.status}`}>
+          <strong>Remaining: £{Math.max(remainingBudget, 0).toFixed(2)}</strong>
         </div>
         {remainingBudget < 0 && (
           <div className="budget-stat over-budget">
-            <strong>Over Budget: ${Math.abs(remainingBudget).toFixed(2)}</strong>
+            <strong>Over Budget: £{Math.abs(remainingBudget).toFixed(2)}</strong>
           </div>
         )}
       </div>
