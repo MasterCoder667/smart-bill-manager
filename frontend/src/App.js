@@ -73,19 +73,13 @@ function App() {
           } 
         />
         
-        {/* Protected routes */}
+        {/* Protected routes - FIXED: Use Dashboard component */}
         <Route 
           path="/dashboard" 
           element={
             isAuthenticated ? (
               <AppLayout>
-                <div className="container">
-                  <div className="card">
-                    <h2>Your Subscriptions</h2>
-                    <p>We'll display your subscriptions here soon!</p>
-                    <p>You're logged in as user ID: {localStorage.getItem('user_id')}</p>
-                  </div>
-                </div>
+                <Dashboard />
               </AppLayout>
             ) : (
               <Navigate to="/login" replace />

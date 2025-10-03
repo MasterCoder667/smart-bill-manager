@@ -354,3 +354,63 @@ body {
 .items-center {
   align-items: center;
 }
+
+/* Subscription Summary */
+.subscription-count, .subscription-price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 0;
+}
+
+/* Flex layout for summary */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Subscription List */
+.subscription-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.subscription-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #667eea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subscription-info h3 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.subscription-meta {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.subscription-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* Form buttons layout */
+.flex.justify-between {
+  gap: 1rem;
+}
+
+.flex.justify-between button {
+  flex: 1;
+}

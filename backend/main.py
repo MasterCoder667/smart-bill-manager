@@ -15,10 +15,13 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Smart Bill Manager API", version="0.1.0")
 
-# Add CORS middleware
+# Add CORS middleware - UPDATED FOR PORT 3001
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Your React frontend URL
+    allow_origins=[
+        "http://localhost:3000",  # React default port
+        "http://localhost:3001"   # Your current React port
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
