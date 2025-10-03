@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import AddSubscription from '../components/AddSubscription';
 import EditSubscription from '../components/EditSubscription';
+import SubscriptionCharts from '../components/SubscriptionCharts';
+import BudgetTracker from '../components/BudgetTracker';
 import { subscriptionsAPI } from '../services/api';
 
 function Dashboard() {
@@ -9,6 +11,7 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [editingSubscription, setEditingSubscription] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Fetch subscriptions when component loads
   useEffect(() => {
@@ -59,6 +62,7 @@ function Dashboard() {
     }
   };
 
+  // Helper Functions
   const calculateTotalMonthly = () => {
     return subscriptions.reduce((total, sub) => {
       let monthlyPrice = sub.price;
@@ -91,14 +95,20 @@ function Dashboard() {
     }, {});
   };
 
+  const getMostExpensiveSubscription = () => {
+    return subscriptions.length > 0 
+      ? subscriptions.reduce((max, sub) => sub.price > max.price ? sub : max)
+      : null;
+  };
+
   const filteredSubscriptions = selectedCategory === 'all' 
     ? subscriptions 
     : subscriptions.filter(sub => sub.category === selectedCategory);
 
   const categories = ['all', ...new Set(subscriptions.map(sub => sub.category))];
-
   const upcomingBills = getUpcomingBills();
   const categoryBreakdown = getCategoryBreakdown();
+  const mostExpensiveSubscription = getMostExpensiveSubscription();
 
   if (editingSubscription) {
     return (
@@ -112,147 +122,200 @@ function Dashboard() {
 
   return (
     <div className="container">
-      {/* Summary Cards */}
-      <div className="card mb-4">
-        <h2>Subscription Summary</h2>
-        <div className="flex justify-between">
-          <div>
-            <h3>Total Subscriptions</h3>
-            <p className="subscription-count">{subscriptions.length}</p>
-          </div>
-          <div>
-            <h3>Monthly Cost</h3>
-            <p className="subscription-price">${calculateTotalMonthly().toFixed(2)}</p>
-          </div>
-          <div>
-            <h3>Upcoming Bills</h3>
-            <p className="subscription-count">{upcomingBills.length}</p>
-          </div>
-        </div>
+      {/* Tab Navigation */}
+      <div className="tabs mb-4">
+        <button 
+          className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          📋 Overview
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          📊 Analytics
+        </button>
       </div>
 
-      {/* Upcoming Bills Section */}
-      {upcomingBills.length > 0 && (
-        <div className="card mb-4">
-          <h2>📅 Upcoming Bills (Next 30 Days)</h2>
-          <div className="upcoming-bills">
-            {upcomingBills.map((bill) => (
-              <div key={bill.id} className="upcoming-bill-item">
-                <div className="bill-info">
-                  <h4>{bill.name}</h4>
-                  <p>Due: {new Date(bill.due_date).toLocaleDateString()}</p>
-                </div>
-                <div className="bill-amount">
-                  ${bill.price}
-                </div>
+      {activeTab === 'overview' ? (
+        /* OVERVIEW TAB */
+        <>
+          {/* Summary Cards */}
+          <div className="card mb-4">
+            <h2>Subscription Summary</h2>
+            <div className="flex justify-between">
+              <div>
+                <h3>Total Subscriptions</h3>
+                <p className="subscription-count">{subscriptions.length}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Category Breakdown */}
-      {Object.keys(categoryBreakdown).length > 0 && (
-        <div className="card mb-4">
-          <h2>📊 Spending by Category</h2>
-          <div className="category-breakdown">
-            {Object.entries(categoryBreakdown).map(([category, amount]) => (
-              <div key={category} className="category-item">
-                <span className="category-name">{category}</span>
-                <span className="category-amount">${amount.toFixed(2)}</span>
+              <div>
+                <h3>Monthly Cost</h3>
+                <p className="subscription-price">${calculateTotalMonthly().toFixed(2)}</p>
               </div>
-            ))}
+              <div>
+                <h3>Upcoming Bills</h3>
+                <p className="subscription-count">{upcomingBills.length}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Add Subscription Form */}
-      <AddSubscription onSubscriptionAdded={handleSubscriptionAdded} />
+          {/* Budget Tracker */}
+          <BudgetTracker subscriptions={subscriptions} />
 
-      {/* Subscriptions List */}
-      <div className="card">
-        <div className="flex justify-between items-center mb-4">
-          <h2>Your Subscriptions</h2>
-          
-          {/* Category Filter */}
-          {categories.length > 1 && (
-            <select 
-              value={selectedCategory} 
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="filter-select"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category === 'all' ? 'All Categories' : category}
-                </option>
-              ))}
-            </select>
+          {/* Upcoming Bills */}
+          {upcomingBills.length > 0 && (
+            <div className="card mb-4">
+              <h2>📅 Upcoming Bills (Next 30 Days)</h2>
+              <div className="upcoming-bills">
+                {upcomingBills.map((bill) => (
+                  <div key={bill.id} className="upcoming-bill-item">
+                    <div className="bill-info">
+                      <h4>{bill.name}</h4>
+                      <p>Due: {new Date(bill.due_date).toLocaleDateString()}</p>
+                    </div>
+                    <div className="bill-amount">
+                      ${bill.price}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
-        
-        {loading && (
-          <div className="loading">
-            <div className="loading-spinner"></div>
-            Loading subscriptions...
-          </div>
-        )}
 
-        {error && (
-          <div className="alert alert-error">
-            {error}
-          </div>
-        )}
-
-        {!loading && filteredSubscriptions.length === 0 && (
-          <div className="text-center">
-            <p>No subscriptions found. {selectedCategory !== 'all' ? 'Try changing the filter.' : 'Add your first subscription above!'}</p>
-          </div>
-        )}
-
-        {!loading && filteredSubscriptions.length > 0 && (
-          <div className="subscription-list">
-            {filteredSubscriptions.map((subscription) => (
-              <div key={subscription.id} className="subscription-item">
-                <div className="subscription-info">
-                  <h3>{subscription.name}</h3>
-                  <div className="subscription-meta">
-                    <span>${subscription.price} {subscription.currency} • </span>
-                    <span>{subscription.recurring_schedule} • </span>
-                    <span className={`category-tag category-${subscription.category}`}>
-                      {subscription.category}
-                    </span>
-                    {subscription.due_date && (
-                      <span> • Due: {new Date(subscription.due_date).toLocaleDateString()}</span>
-                    )}
+          {/* Category Breakdown */}
+          {Object.keys(categoryBreakdown).length > 0 && (
+            <div className="card mb-4">
+              <h2>📊 Spending by Category</h2>
+              <div className="category-breakdown">
+                {Object.entries(categoryBreakdown).map(([category, amount]) => (
+                  <div key={category} className="category-item">
+                    <span className="category-name">{category}</span>
+                    <span className="category-amount">${amount.toFixed(2)}</span>
                   </div>
-                  {subscription.notes && (
-                    <p className="subscription-notes">{subscription.notes}</p>
-                  )}
-                </div>
-                <div className="subscription-actions">
-                  <div className="subscription-price">
-                    ${subscription.price}
-                  </div>
-                  <div className="action-buttons">
-                    <button 
-                      onClick={() => handleEditSubscription(subscription)}
-                      className="btn btn-secondary btn-sm"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteSubscription(subscription.id)}
-                      className="btn btn-danger btn-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
+          )}
+
+          {/* Add Subscription Form */}
+          <AddSubscription onSubscriptionAdded={handleSubscriptionAdded} />
+
+          {/* Subscriptions List */}
+          <div className="card">
+            <div className="flex justify-between items-center mb-4">
+              <h2>Your Subscriptions</h2>
+              
+              {/* Category Filter */}
+              {categories.length > 1 && (
+                <select 
+                  value={selectedCategory} 
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="filter-select"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category === 'all' ? 'All Categories' : category}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            
+            {loading && (
+              <div className="loading">
+                <div className="loading-spinner"></div>
+                Loading subscriptions...
+              </div>
+            )}
+
+            {error && (
+              <div className="alert alert-error">
+                {error}
+              </div>
+            )}
+
+            {!loading && filteredSubscriptions.length === 0 && (
+              <div className="text-center">
+                <p>No subscriptions found. {selectedCategory !== 'all' ? 'Try changing the filter.' : 'Add your first subscription above!'}</p>
+              </div>
+            )}
+
+            {!loading && filteredSubscriptions.length > 0 && (
+              <div className="subscription-list">
+                {filteredSubscriptions.map((subscription) => (
+                  <div key={subscription.id} className="subscription-item">
+                    <div className="subscription-info">
+                      <h3>{subscription.name}</h3>
+                      <div className="subscription-meta">
+                        <span>${subscription.price} {subscription.currency} • </span>
+                        <span>{subscription.recurring_schedule} • </span>
+                        <span className={`category-tag category-${subscription.category}`}>
+                          {subscription.category}
+                        </span>
+                        {subscription.due_date && (
+                          <span> • Due: {new Date(subscription.due_date).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                      {subscription.notes && (
+                        <p className="subscription-notes">{subscription.notes}</p>
+                      )}
+                    </div>
+                    <div className="subscription-actions">
+                      <div className="subscription-price">
+                        ${subscription.price}
+                      </div>
+                      <div className="action-buttons">
+                        <button 
+                          onClick={() => handleEditSubscription(subscription)}
+                          className="btn btn-secondary btn-sm"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSubscription(subscription.id)}
+                          className="btn btn-danger btn-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        /* ANALYTICS TAB */
+        <div className="analytics-tab">
+          <SubscriptionCharts subscriptions={subscriptions} />
+          
+          {/* Additional Analytics */}
+          <div className="card">
+            <h3>📈 Subscription Insights</h3>
+            <div className="insights-grid">
+              <div className="insight-item">
+                <h4>Most Expensive</h4>
+                <p>{mostExpensiveSubscription?.name || 'N/A'}</p>
+                <span>${mostExpensiveSubscription?.price || 0}</span>
+              </div>
+              <div className="insight-item">
+                <h4>Category Count</h4>
+                <p>{new Set(subscriptions.map(s => s.category)).size} categories</p>
+              </div>
+              <div className="insight-item">
+                <h4>Average Monthly</h4>
+                <p>${(calculateTotalMonthly() / Math.max(subscriptions.length, 1)).toFixed(2)}</p>
+              </div>
+              <div className="insight-item">
+                <h4>Total Yearly</h4>
+                <p>${(calculateTotalMonthly() * 12).toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
