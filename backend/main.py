@@ -254,6 +254,3 @@ def delete_subscription(
     db.commit()
     
     return {"message": "Subscription deleted successfully"}
-
-
-
