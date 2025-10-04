@@ -81,6 +81,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except Exception as e:
         print(f"❌ [DEBUG] Unexpected error: {e}")
         raise credentials_exception
+    
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "message": "Smart Bill Manager API is running"}
 
 # Test endpoint
 @app.get("/")
