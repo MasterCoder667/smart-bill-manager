@@ -18,7 +18,7 @@ app = FastAPI(title="Smart Bill Manager API", version="0.1.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["frontend-service-production-64b7.up.railway.app","http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
