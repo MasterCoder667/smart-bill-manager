@@ -9,6 +9,7 @@ from database import get_db, engine
 import auth
 from jose import JWTError, jwt
 from datetime import timedelta
+import os
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -18,7 +19,10 @@ app = FastAPI(title="Smart Bill Manager API", version="0.1.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["frontend-service-production-64b7.up.railway.app","http://localhost:3000"],
+    allow_origins=[
+        "https://frontend-service-production-64b7.up.railway.app",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -250,3 +254,12 @@ def delete_subscription(
     db.commit()
     
     return {"message": "Subscription deleted successfully"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+
+
+
